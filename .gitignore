@@ -1,3 +1,8 @@
+# Virtual Env Stuff
+bin/
+include/
+lib64
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

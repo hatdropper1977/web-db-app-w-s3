@@ -1,0 +1,3 @@
+boto3
+Flask-Bootstrap
+Flask-WTF

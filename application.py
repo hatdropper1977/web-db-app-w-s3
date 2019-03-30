@@ -27,6 +27,7 @@ def take_test():
     if not form.validate_on_submit():
         return render_template('take_quiz_template.html', form=form)
     if request.method == 'POST':
+        S3_SUB_BUCKET_NAME = datetime.now().strftime('%Y%m%d')
         S3_OBJECT_NAME = random_string_gen()
         completed_quiz = {}
         completed_quiz['agree'] = request.form.get('agree') 
@@ -38,13 +39,14 @@ def take_test():
         completed_quiz['textblob'] = request.form.get('textblob')
         S3_OBJECT_JSON = json.dumps(completed_quiz)
         s3 = boto3.resource('s3')
-        s3.Object(S3_BUCKET_NAME, '{}.json'.format(S3_OBJECT_NAME)).put(Body=S3_OBJECT_JSON)
-        return 'Your key is {}.'.format(S3_OBJECT_NAME)
+        s3.Object(S3_BUCKET_NAME, '{}/{}.json'.format(S3_SUB_BUCKET_NAME,S3_OBJECT_NAME)).put(Body=S3_OBJECT_JSON)
+        return 'Your key is {}/{}.'.format(S3_SUB_BUCKET_NAME,S3_OBJECT_NAME)
 
-@application.route('/user/<userkey>')
-def show_user_data(userkey):
-    S3_OBJECT_NAME = '{}.json'.format(userkey)
-    obj = s3.Object(S3_BUCKET_NAME, S3_OBJECT_NAME)
+@application.route('/user/<user_date>/<user_key>')
+def show_user_data(user_date,user_key):
+    S3_SUB_BUCKET_NAME = user_date
+    S3_OBJECT_NAME = user_key
+    obj = s3.Object(S3_BUCKET_NAME, '{}/{}.json'.format(S3_SUB_BUCKET_NAME, S3_OBJECT_NAME))
     user_json = obj.get()['Body'].read().decode('utf-8')
     return render_template( 'show_data_template.html', user_json = json.loads(user_json) )
 
